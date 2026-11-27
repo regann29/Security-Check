@@ -85,7 +85,7 @@ def check_live(extra_domain: str | None) -> None:
     from app.scanners.email_dns import scan_email_domain
     from app.scoring import build_result
 
-    dns = ResolverClient(timeout=4)
+    dns = ResolverClient(timeout=8)
     try:
         if not dns.exists("example.com"):
             record("WARN", "Live DNS", "example.com not found. Your network may block or rewrite DNS; live checks skipped.")

@@ -1,4 +1,5 @@
 """Thin wrapper around DNS lookups so the scanners are easy to test."""
+import os
 from typing import Protocol
 
 import dns.exception
@@ -26,6 +27,9 @@ class ResolverClient:
     def _resolver(self) -> dns.resolver.Resolver:
         # A fresh resolver per call keeps this safe to use from several threads.
         r = dns.resolver.Resolver()
+        custom = os.environ.get('DNS_NAMESERVERS', '')
+        if custom.strip():
+            r.nameservers = [x.strip() for x in custom.split(',') if x.strip()]
         r.timeout = self._timeout
         r.lifetime = self._timeout
         return r
