@@ -126,12 +126,13 @@ def check_live(extra_domain: str | None) -> None:
 
 def main() -> int:
     extra = sys.argv[1] if len(sys.argv) > 1 else None
-    check_python()
-    check_files()
-    check_compile_and_import()
-    check_tests()
-    check_scoring_logic()
-    check_live(extra)
+    steps = [check_python, check_files, check_compile_and_import, check_tests,
+             check_scoring_logic, lambda: check_live(extra)]
+    for step in steps:
+        try:
+            step()
+        except Exception as exc:  # noqa: BLE001
+            record("FAIL", getattr(step, "__name__", "check"), f"{type(exc).__name__}: {exc}")
     fails = [n for s, n in results if s == "FAIL"]
     warns = [n for s, n in results if s == "WARN"]
     print(f"\nSUMMARY: {len(results) - len(fails) - len(warns)} passed, {len(warns)} warnings, {len(fails)} failed")
